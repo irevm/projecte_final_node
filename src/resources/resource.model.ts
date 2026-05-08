@@ -1,14 +1,20 @@
-export const RESOURCE_TYPES = ['laptop', 'room', 'software', 'vehicle'] as const;
+export const RESOURCE_TYPES = [
+  'laptop',
+  'room',
+  'software',
+  'vehicle',
+] as const;
+
+export const RESOURCE_STATUS = ['available', 'assigned'];
 
 export type ResourceType = (typeof RESOURCE_TYPES)[number];
 
-export type ResourceStatus = 'available' | 'assigned';
-
+export type ResourceStatus = (typeof RESOURCE_STATUS)[number];
 export interface Resource {
   id: number;
   name: string;
-  type: string;
-  status: string;
+  type: ResourceType;
+  status: ResourceStatus;
   location: string;
   createdAt: string;
 }

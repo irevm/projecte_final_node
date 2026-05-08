@@ -1,7 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import type { CreateUserDto } from './dto/create-user.dto';
-import type { FindUsersQueryDto } from './dto/find-users-query.dto';
-import type { UpdateUserDto } from './dto/update-user.dto';
+import { CreateUserDto } from './dto/create-user.dto';
+import { FindUsersQueryDto } from './dto/find-users-query.dto';
+import { UpdateUserDto } from './dto/update-user.dto';
 import { User } from './user.model';
 
 @Injectable()
