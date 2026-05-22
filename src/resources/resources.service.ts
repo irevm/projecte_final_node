@@ -13,6 +13,7 @@ export class ResourcesService {
       type: 'laptop',
       status: 'available',
       location: 'Oficina Central',
+      assignedToUserId: null,
       createdAt: new Date().toISOString(),
     },
   ];
@@ -43,8 +44,9 @@ export class ResourcesService {
       id: this.resources.length + 1,
       name: dto.name,
       type: dto.type,
-      status: dto.status || 'available', // Per defecte disponible
+      status: 'available', // Per defecte disponible
       location: dto.location,
+      assignedToUserId: null,
       createdAt: new Date().toISOString(),
     };
 
@@ -78,5 +80,23 @@ export class ResourcesService {
 
     const [deleted] = this.resources.splice(index, 1);
     return deleted;
+  }
+
+  assign(resourceId: number, userId: number): Resource {
+    const resource = this.findOne(resourceId);
+
+    resource.status = 'assigned';
+    resource.assignedToUserId = userId;
+
+    return resource;
+  }
+
+  release(resourceId: number): Resource {
+    const resource = this.findOne(resourceId);
+
+    resource.status = 'available';
+    resource.assignedToUserId = null;
+
+    return resource;
   }
 }

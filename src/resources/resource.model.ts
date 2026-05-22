@@ -5,7 +5,7 @@ export const RESOURCE_TYPES = [
   'vehicle',
 ] as const;
 
-export const RESOURCE_STATUS = ['available', 'assigned'];
+export const RESOURCE_STATUS = ['available', 'assigned'] as const;
 
 export type ResourceType = (typeof RESOURCE_TYPES)[number];
 
@@ -16,5 +16,6 @@ export interface Resource {
   type: ResourceType;
   status: ResourceStatus;
   location: string;
+  assignedToUserId: number | null;
   createdAt: string;
 }
