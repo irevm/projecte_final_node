@@ -3,33 +3,35 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { FindUsersQueryDto } from './dto/find-users-query.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { User } from './user.model';
+import { Repository } from 'typeorm';
+import { InjectRepository } from '@nestjs/typeorm';
 
 @Injectable()
 export class UsersService {
-  private users: User[] = [
-    {
-      id: 1,
-      name: 'Anna Serra',
-      email: 'anna@example.com',
-      role: 'member',
-      active: true,
-      createdAt: new Date().toISOString(),
-    },
-  ];
+  constructor(
+    @InjectRepository(User) private readonly usersRepository: Repository<User>,
+  ) {}
 
-  findAll(query: FindUsersQueryDto): User[] {
+  async findAll(query: FindUsersQueryDto): Promise<User[]> {
     const { active, role } = query;
 
-    return this.users.filter((user) => {
-      const matchesActive = active === undefined || user.active === active;
-      const matchesRole = role === undefined || user.role === role;
+    const where: Partial<User> = {};
 
-      return matchesActive && matchesRole;
-    });
+    if (active !== undefined) {
+      where.active = active;
+    }
+
+    if (role !== undefined) {
+      where.role = role;
+    }
+
+    return await this.usersRepository.find({ where });
   }
 
-  findOne(id: number): User {
-    const user = this.users.find((currentUser) => currentUser.id === id);
+  async findOne(id: number): Promise<User> {
+    const user = await this.usersRepository.findOneBy({
+      id,
+    });
 
     if (!user) {
       throw new NotFoundException(`User with id ${id} not found`);
@@ -38,56 +40,31 @@ export class UsersService {
     return user;
   }
 
-  create(createUserDto: CreateUserDto): User {
-    const newUser: User = {
-      id: this.users.length + 1,
-      name: createUserDto.name,
-      email: createUserDto.email,
-      role: createUserDto.role,
+  create(createUserDto: CreateUserDto): Promise<User> {
+    const user = this.usersRepository.create({
+      ...createUserDto,
       active: true,
-      createdAt: new Date().toISOString(),
-    };
+    });
 
-    this.users.push(newUser);
+    const users = this.usersRepository.save(user);
 
-    return newUser;
+    return users;
   }
 
-  update(id: number, updateUserDto: UpdateUserDto): User {
-    const userIndex = this.users.findIndex((user) => user.id === id);
+  async update(id: number, updateUserDto: UpdateUserDto): Promise<User> {
+    const user = await this.findOne(id);
 
-    if (userIndex === -1) {
-      throw new NotFoundException(`User with id ${id} not found`);
-    }
+    Object.assign(user, updateUserDto);
 
-    const currentUser = this.users[userIndex];
-    const {
-      name = currentUser.name,
-      email = currentUser.email,
-      role = currentUser.role,
-      active = currentUser.active,
-    } = updateUserDto;
-
-    this.users[userIndex] = {
-      ...currentUser,
-      name,
-      email,
-      role,
-      active,
-    };
-
-    return this.users[userIndex];
+    const users = this.usersRepository.save(user);
+    return users;
   }
 
-  remove(id: number): User {
-    const userIndex = this.users.findIndex((user) => user.id === id);
+  async remove(id: number): Promise<User> {
+    const user = await this.findOne(id);
 
-    if (userIndex === -1) {
-      throw new NotFoundException(`User with id ${id} not found`);
-    }
+    const users = this.usersRepository.remove(user);
 
-    const [deletedUser] = this.users.splice(userIndex, 1);
-
-    return deletedUser;
+    return users;
   }
 }
