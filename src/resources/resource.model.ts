@@ -1,4 +1,11 @@
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { User } from 'src/users/user.model';
+import {
+  Column,
+  Entity,
+  JoinColumn,
+  ManyToOne,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
 
 export const RESOURCE_TYPES = [
   'laptop',
@@ -46,6 +53,10 @@ export class Resource {
     nullable: true,
   })
   assignedToUserId!: number | null;
+
+  @ManyToOne(() => User, { nullable: true, onDelete: 'SET NULL' })
+  @JoinColumn({ name: 'assignedToUserId' })
+  assignedToUser?: User | null;
 
   @Column()
   createdAt!: Date;
