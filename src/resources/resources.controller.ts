@@ -14,6 +14,7 @@ import { FindResourcesQueryDto } from './dto/find-resources-query.dto';
 import { UpdateResourceDto } from './dto/update-resource.dto';
 import type { Resource } from './resource.model';
 import { ResourcesService } from './resources.service';
+import { AssignResourceDto } from './dto/assign-resource.dto';
 
 @Controller('resources')
 export class ResourcesController {
@@ -45,5 +46,18 @@ export class ResourcesController {
   @Delete(':id')
   remove(@Param('id', ParseIntPipe) id: number): Promise<Resource> {
     return this.resourcesService.remove(id);
+  }
+
+  @Patch(':id/assign')
+  assign(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() dto: AssignResourceDto,
+  ): Promise<Resource> {
+    return this.resourcesService.assign(id, dto.userId);
+  }
+
+  @Patch(':id/release')
+  release(@Param('id', ParseIntPipe) id: number): Promise<Resource> {
+    return this.resourcesService.release(id);
   }
 }

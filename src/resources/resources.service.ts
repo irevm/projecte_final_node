@@ -6,17 +6,22 @@ import { CreateResourceDto } from './dto/create-resource.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, FindOptionsWhere } from 'typeorm';
 import { Resource } from './resource.model';
+import { User } from '../users/user.model';
 @Injectable()
 export class ResourcesService {
   constructor(
     @InjectRepository(Resource)
     private readonly resourcesRepository: Repository<Resource>,
+
+    @InjectRepository(User)
+    private readonly usersRepository: Repository<User>,
   ) {}
 
   async findAll(query: FindResourcesQueryDto): Promise<Resource[]> {
     const { type, status } = query;
 
     // const where: Partial<Resource> = {};
+    // Perquè accepti null a assignedToUserId
     const where: FindOptionsWhere<Resource> = {};
 
     if (type !== undefined) where.type = type;
@@ -62,6 +67,14 @@ export class ResourcesService {
 
   async assign(resourceId: number, userId: number): Promise<Resource> {
     const resource = await this.findOne(resourceId);
+
+    const user = await this.usersRepository.findOneBy({
+      id: userId,
+    });
+
+    if (!user) {
+      throw new NotFoundException(`User with id ${userId} not found`);
+    }
 
     resource.status = 'assigned';
     resource.assignedToUserId = userId;
